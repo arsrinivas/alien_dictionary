@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Alien Dictionary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px;
+    }
+    textarea {
+      width: 300px;
+      height: 120px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #output {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>👽 Alien Dictionary</h1>
+<p>Enter words (one per line):</p>
+<textarea id="input-words"></textarea><br>
+<button onclick="findAlienOrder()">Find Character Order</button>
+
+<div id="output"></div>
+
+<script>
+function findAlienOrder() {
+  const lines = document.getElementById("input-words").value.trim().split('\n').map(w => w.trim());
+  const result = alienOrder(lines);
+  document.getElementById("output").innerText = result ? `🧠 Alien Order: ${result}` : "❌ Invalid order (Cycle Detected)";
+}
+
+function alienOrder(words) {
+  const graph = {}, inDegree = {};
+
+  // Initialize graph
+  for (let word of words) {
+    for (let char of word) {
+      if (!graph[char]) {
+        graph[char] = new Set();
+        inDegree[char] = 0;
+      }
+    }
+  }
+
+  // Build graph
+  for (let i = 0; i < words.length - 1; i++) {
+    const w1 = words[i], w2 = words[i+1];
+    const minLen = Math.min(w1.length, w2.length);
+    let found = false;
+
+    for (let j = 0; j < minLen; j++) {
+      if (w1[j] !== w2[j]) {
+        if (!graph[w1[j]].has(w2[j])) {
+          graph[w1[j]].add(w2[j]);
+          inDegree[w2[j]]++;
+        }
+        found = true;
+        break;
+      }
+    }
+
+    // Invalid: ["abc", "ab"]
+    if (!found && w1.length > w2.length) return "";
+  }
+
+  // Topological Sort (Kahn’s Algo)
+  const queue = Object.keys(inDegree).filter(c => inDegree[c] === 0);
+  const result = [];
+
+  while (queue.length) {
+    const curr = queue.shift();
+    result.push(curr);
+    for (let neighbor of graph[curr]) {
+      inDegree[neighbor]--;
+      if (inDegree[neighbor] === 0) queue.push(neighbor);
+    }
+  }
+
+  return result.length === Object.keys(graph).length ? result.join('') : "";
+}
+</script>
+
+</body>
+</html>
