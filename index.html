@@ -22,6 +22,7 @@
       color: white;
       border: none;
       border-radius: 5px;
+      cursor: pointer;
     }
     #output {
       margin-top: 20px;
@@ -34,7 +35,13 @@
 
 <h1>👽 Alien Dictionary</h1>
 <p>Enter words (one per line):</p>
-<textarea id="input-words"></textarea><br>
+<textarea id="input-words">
+wrt
+wrf
+er
+ett
+rftt
+</textarea><br>
 <button onclick="findAlienOrder()">Find Character Order</button>
 
 <div id="output"></div>
@@ -76,11 +83,11 @@ function alienOrder(words) {
       }
     }
 
-    // Invalid: ["abc", "ab"]
+    // Invalid case: ["abc", "ab"]
     if (!found && w1.length > w2.length) return "";
   }
 
-  // Topological Sort (Kahn’s Algo)
+  // Topological Sort (Kahn’s Algorithm)
   const queue = Object.keys(inDegree).filter(c => inDegree[c] === 0);
   const result = [];
 
@@ -95,6 +102,11 @@ function alienOrder(words) {
 
   return result.length === Object.keys(graph).length ? result.join('') : "";
 }
+
+// Run on page load for default input
+window.onload = () => {
+  findAlienOrder();
+};
 </script>
 
 </body>
